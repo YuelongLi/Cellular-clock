@@ -1,0 +1,24 @@
+# Cell number
+Nc = 6
+# Correlated functionals
+def funcs(t, ys):
+    mn= ys[0:Nc]
+    mc = ys[Nc:Nc*2]
+    pc = ys[Nc*2:Nc*3]
+    pn = ys[Nc*3:Nc*4]
+    ms = ys[Nc*4]
+    dmn =  [a*(K/(K+pn[i]/V))**r-gm*mn[i] for i in range(Nc)]
+    dmc = [gm*mn[i]-muc*mc[i] + mus*ms for i in range(Nc)]
+    dpc= [b*mc[i]-gp*pc[i] for i in range(Nc)]
+    dpn = [gp*pc[i]-dp*pn[i] for i in range(Nc)]
+    dms = muc*sum(mc)-Nc*ms-dm*ms*Nc
+    return dmn+dmc+dpc+dpn+[dms]
+
+y0 = []
+for n in range(Nc):
+    ## Initialize at random phases
+    y0 += standardized.getPhase(2*math.pi*random.random()).tolist()
+y0 += [0]
+t1 = 500
+sol = solve_ivp(funcs, [0, t1], y0, t_eval = np.linspace(0,t1, 1000), rtol = 1e-10)
+# plt.plot(sol.t, sol.y[0], 'k')
